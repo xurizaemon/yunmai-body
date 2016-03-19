@@ -45,30 +45,21 @@ d3.json("data.json", function(error, data){
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  rows.forEach(function(d) {
+  data.data.rows.forEach(function(d) {
     d.date = parseDate(d.createTime);
     d.bmi = 0 + d.bmi;
     console.log(d, 'd');
   });
 
   // Scale the range of the data
-  console.log(rows);
-  x.domain(d3.extent(rows, function(d) {
-    if (typeof d !== 'undefined') {
-      return d.date;
-    }
-  }));
-  y.domain([0, 2 * d3.max(rows, function(d) {
-    if (typeof d !== 'undefined') {
-      return d.bmi;
-    }
-  })]);
+  x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
+  y.domain([0, 2 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
 
   // Add the valueline path.
-//  console.log(rows, 'wos');
+//  console.log(data.data.rows, 'wos');
   svg.append("path")
     .attr("class", "line")
-    .attr("d", valueline(rows));
+    .attr("d", valueline(data.data.rows));
 
   // Add the X Axis
   svg.append("g")
@@ -90,7 +81,7 @@ d3.json("data.json", function(error, data){
     .text('BMI');
 
   var p = d3.select("body").selectAll("p")
-    .data(rows)
+    .data(data.data.rows)
     .enter()
     .append("p")
     .text(function(measure) {
