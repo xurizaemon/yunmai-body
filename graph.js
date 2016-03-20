@@ -14,8 +14,8 @@ d3.json("data.json", function(error, data){
   });
 
   // Set the dimensions of the canvas / graph
-  var margin = {top: 30, right: 20, bottom: 35, left: 50},
-  width = 600 - margin.left - margin.right,
+  var margin = {top: 30, right: 50, bottom: 35, left: 50},
+  width = 800 - margin.left - margin.right,
   height = 270 - margin.top - margin.bottom;
 
   // Set the ranges
@@ -29,12 +29,23 @@ d3.json("data.json", function(error, data){
     .orient("left").ticks(5);
 
   // Define the line
-  var valueline = d3.svg.line()
+  var valuelineBMI = d3.svg.line()
+    .interpolate('basis')
     .x(function(d) {
       return x(d.date);
     })
     .y(function(d) {
       return y(d.bmi);
+    });
+
+  // Define the line
+  var valuelineFat = d3.svg.line()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y(function(d) {
+      return y(d.fat);
     });
 
   // Adds the svg canvas
@@ -53,7 +64,30 @@ d3.json("data.json", function(error, data){
   // Add the valueline path.
   svg.append("path")
     .attr("class", "line")
-    .attr("d", valueline(data.data.rows));
+    .style('stroke-dasharray', ('2', '8'))
+    .style('stroke', 'red')
+    .attr("d", valuelineBMI(data.data.rows));
+
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + y(data.data.rows[data.data.rows.length-1].bmi) + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'red')
+    .text('BMI');
+
+  // Add a second valueline path.
+  svg.append("path")
+    .attr("class", "line")
+    .style('stroke-dasharray', ('2', '8'))
+    .style('stroke', 'green')
+    .attr("d", valuelineFat(data.data.rows));
+
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + y(data.data.rows[data.data.rows.length-1].fat) + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'green')
+    .text('Fat');
 
   // Add the X Axis
   svg.append("g")
@@ -71,8 +105,7 @@ d3.json("data.json", function(error, data){
     .attr('y', (margin.top / 2))
     .attr('text-anchor', 'middle')
     .style('font-size', '16px')
-    .style('text-decoration', 'underline')
-    .text('BMI');
+    .text('Body Stats');
 
   svg.append('text')
     .attr('x', width / 2)
