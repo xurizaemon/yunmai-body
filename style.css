@@ -1,5 +1,5 @@
 body {
-  font: 1px Arial;
+  font: 12px Arial;
 }
 
 path {
@@ -13,5 +13,5 @@ path {
   fill: none;
   stroke: grey;
   stroke-width: 1;
-  shape-rendering: crispEdges;  
+  shape-rendering: crispEdges;
 }

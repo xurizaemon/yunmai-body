@@ -1,20 +1,22 @@
 d3.json("data.json", function(error, data){
-//  console.log(data.data, 'data');
+  console.log(data.data.rows);
 
-  var rows = [];
-  data.data.rows.forEach(function(d, i) {
-    if (d.timeStamp !== 1457869810) {
-      rows[i] = d;
-    }
+  // Data prep: ignore entries by timestamp.
+  var ignoreTimeStamps = [ 1457869810 ];
+  data.data.rows = data.data.rows.filter(function(d) {
+    return ignoreTimeStamps.indexOf(d.timeStamp) === -1;
+  });
+
+  // Data prep: get JS dates from input string.
+  data.data.rows.forEach(function(d) {
+    d.date = d3.time.format("%Y-%m-%d %H:%M:%S").parse(d.createTime);
+    d.bmi = 0 + d.bmi;
   });
 
   // Set the dimensions of the canvas / graph
-  var margin = {top: 30, right: 20, bottom: 30, left: 50},
+  var margin = {top: 30, right: 20, bottom: 35, left: 50},
   width = 600 - margin.left - margin.right,
   height = 270 - margin.top - margin.bottom;
-
-  // Method to parse the date / time
-  var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
@@ -23,7 +25,6 @@ d3.json("data.json", function(error, data){
   // Define the axes
   var xAxis = d3.svg.axis().scale(x)
     .orient("bottom").ticks(5);
-
   var yAxis = d3.svg.axis().scale(y)
     .orient("left").ticks(5);
 
@@ -33,7 +34,6 @@ d3.json("data.json", function(error, data){
       return x(d.date);
     })
     .y(function(d) {
-      // console.log(d.bmi, 'bmi');
       return y(d.bmi);
     });
 
@@ -45,18 +45,12 @@ d3.json("data.json", function(error, data){
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  data.data.rows.forEach(function(d) {
-    d.date = parseDate(d.createTime);
-    d.bmi = 0 + d.bmi;
-    console.log(d, 'd');
-  });
-
   // Scale the range of the data
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
-  y.domain([0, 2 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
+  // This domain should show relevant range (eg 45-55% of BMI).
+  y.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
 
   // Add the valueline path.
-//  console.log(data.data.rows, 'wos');
   svg.append("path")
     .attr("class", "line")
     .attr("d", valueline(data.data.rows));
@@ -79,6 +73,13 @@ d3.json("data.json", function(error, data){
     .style('font-size', '16px')
     .style('text-decoration', 'underline')
     .text('BMI');
+
+  svg.append('text')
+    .attr('x', width / 2)
+    .attr('y', height + margin.bottom)
+    .style('text-anchor', 'middle')
+    .style('font-size', '14px')
+    .text('Date');
 
   var p = d3.select("body").selectAll("p")
     .data(data.data.rows)
