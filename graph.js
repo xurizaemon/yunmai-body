@@ -22,17 +22,24 @@ d3.json("data.json", function(error, data){
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
   var yBMI = d3.scale.linear().range([height, 0]);
+  var yBMR = d3.scale.linear().range([height, 0]);
   var yFat = d3.scale.linear().range([height, 0]);
 
   // Define the axes
   var xAxis = d3.svg.axis().scale(x)
-    .orient("bottom").ticks(5);
+    .orient("bottom")
+    .ticks(5);
   var yAxisBMI = d3.svg.axis().scale(yBMI)
-    .orient("left").ticks(5);
+    .orient("left")
+    .ticks(5);
+  var yAxisBMR = d3.svg.axis().scale(yBMR)
+    .orient("right")
+    .ticks(5);
   var yAxisFat = d3.svg.axis().scale(yFat)
-    .orient("right").ticks(5);
+    .orient("right")
+    .ticks(5);
 
-  // Define the line
+  // Define the lines.
   var valuelineBMI = d3.svg.line()
     .interpolate('basis')
     .x(function(d) {
@@ -41,8 +48,14 @@ d3.json("data.json", function(error, data){
     .y(function(d) {
       return yBMI(d.bmi);
     });
-
-  // Define the line
+  var valuelineBMR = d3.svg.line()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y(function(d) {
+      return yBMR(d.bmr);
+    });
   var valuelineFat = d3.svg.line()
     .interpolate('basis')
     .x(function(d) {
@@ -64,29 +77,38 @@ d3.json("data.json", function(error, data){
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
   // This domain should show relevant range (eg 45-55% of BMI).
   yBMI.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
+  yBMR.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmr; }), 1.1 * d3.max(data.data.rows, function(d) { return d.bmr; })]);
   yFat.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.fat; })]);
 
-  // Add the valueline path.
+  // Add the valueline paths.
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('2', '8'))
     .style('stroke', 'red')
     .attr("d", valuelineBMI(data.data.rows));
-
-  svg.append('text')
-    .attr('transform', 'translate(' + (width + 3) + ',' + yFat(data.data.rows[data.data.rows.length-1].bmi) + ')')
-    .attr('dy', '.35em')
-    .attr('text-anchor', 'start')
-    .style('fill', 'red')
-    .text('BMI');
-
-  // Add a second valueline path.
+  svg.append("path")
+    .attr("class", "line")
+    .style('stroke-dasharray', ('2', '8'))
+    .style('stroke', 'purple')
+    .attr("d", valuelineBMR(data.data.rows));
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('2', '8'))
     .style('stroke', 'green')
     .attr("d", valuelineFat(data.data.rows));
 
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + yBMI(data.data.rows[data.data.rows.length-1].bmi) + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'red')
+    .text('BMI');
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + yBMR(data.data.rows[data.data.rows.length-1].bmr) + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'purple')
+    .text('BMR');
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yFat(data.data.rows[data.data.rows.length-1].fat) + ')')
     .attr('dy', '.35em')
@@ -100,17 +122,20 @@ d3.json("data.json", function(error, data){
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
-  // Add the BMI y Axis
+  // Add the y Axes
   svg.append("g")
     .attr("class", "y axis")
     // .attr("transform", "translate(" + width + ",0)")
     .style('fill', 'green')
     .call(yAxisBMI);
-
-  // Add the BMI y Axis
   svg.append("g")
     .attr("class", "y axis ghost")
     .attr("transform", "translate(0,0)")
+    .style('fill', 'purple')
+    .call(yAxisBMR);
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(30,0)")
     .style('fill', 'red')
     .call(yAxisFat);
 
