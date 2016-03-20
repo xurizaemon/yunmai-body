@@ -15,3 +15,11 @@ path {
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
+
+.ghost path,
+.ghost line {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}

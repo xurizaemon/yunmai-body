@@ -10,7 +10,8 @@ d3.json("data.json", function(error, data){
   // Data prep: get JS dates from input string.
   data.data.rows.forEach(function(d) {
     d.date = d3.time.format("%Y-%m-%d %H:%M:%S").parse(d.createTime);
-    d.bmi = 0 + d.bmi;
+    d.bmi = +d.bmi;
+    d.fat = +d.fat;
   });
 
   // Set the dimensions of the canvas / graph
@@ -20,13 +21,16 @@ d3.json("data.json", function(error, data){
 
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
-  var y = d3.scale.linear().range([height, 0]);
+  var yBMI = d3.scale.linear().range([height, 0]);
+  var yFat = d3.scale.linear().range([height, 0]);
 
   // Define the axes
   var xAxis = d3.svg.axis().scale(x)
     .orient("bottom").ticks(5);
-  var yAxis = d3.svg.axis().scale(y)
+  var yAxisBMI = d3.svg.axis().scale(yBMI)
     .orient("left").ticks(5);
+  var yAxisFat = d3.svg.axis().scale(yFat)
+    .orient("right").ticks(5);
 
   // Define the line
   var valuelineBMI = d3.svg.line()
@@ -35,7 +39,7 @@ d3.json("data.json", function(error, data){
       return x(d.date);
     })
     .y(function(d) {
-      return y(d.bmi);
+      return yBMI(d.bmi);
     });
 
   // Define the line
@@ -45,7 +49,7 @@ d3.json("data.json", function(error, data){
       return x(d.date);
     })
     .y(function(d) {
-      return y(d.fat);
+      return yFat(d.fat);
     });
 
   // Adds the svg canvas
@@ -59,7 +63,8 @@ d3.json("data.json", function(error, data){
   // Scale the range of the data
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
   // This domain should show relevant range (eg 45-55% of BMI).
-  y.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
+  yBMI.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
+  yFat.domain([0.9 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.1 * d3.max(data.data.rows, function(d) { return d.fat; })]);
 
   // Add the valueline path.
   svg.append("path")
@@ -69,7 +74,7 @@ d3.json("data.json", function(error, data){
     .attr("d", valuelineBMI(data.data.rows));
 
   svg.append('text')
-    .attr('transform', 'translate(' + (width + 3) + ',' + y(data.data.rows[data.data.rows.length-1].bmi) + ')')
+    .attr('transform', 'translate(' + (width + 3) + ',' + yFat(data.data.rows[data.data.rows.length-1].bmi) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'red')
@@ -83,7 +88,7 @@ d3.json("data.json", function(error, data){
     .attr("d", valuelineFat(data.data.rows));
 
   svg.append('text')
-    .attr('transform', 'translate(' + (width + 3) + ',' + y(data.data.rows[data.data.rows.length-1].fat) + ')')
+    .attr('transform', 'translate(' + (width + 3) + ',' + yFat(data.data.rows[data.data.rows.length-1].fat) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'green')
@@ -95,10 +100,19 @@ d3.json("data.json", function(error, data){
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
-  // Add the Y Axis
+  // Add the BMI y Axis
   svg.append("g")
     .attr("class", "y axis")
-    .call(yAxis);
+    // .attr("transform", "translate(" + width + ",0)")
+    .style('fill', 'green')
+    .call(yAxisBMI);
+
+  // Add the BMI y Axis
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(0,0)")
+    .style('fill', 'red')
+    .call(yAxisFat);
 
   svg.append('text')
     .attr('x', (width / 2))
@@ -119,7 +133,6 @@ d3.json("data.json", function(error, data){
     .enter()
     .append("p")
     .text(function(measure) {
-//      console.log(measure);
       return measure.createTime + ': ' + measure.bmi;
     });
 })
