@@ -1,5 +1,5 @@
-d3.json("data.json", function(error, data){
-  console.log(data.data.rows);
+d3.json("data/data.json", function(error, data){
+  // console.log(data.data.rows);
 
   // Data prep: ignore entries by timestamp.
   var ignoreTimeStamps = [ 1457869810 ];
@@ -19,8 +19,8 @@ d3.json("data.json", function(error, data){
 
   // Set the dimensions of the canvas / graph
   var margin = {top: 30, right: 50, bottom: 35, left: 50},
-  width = 800 - margin.left - margin.right,
-  height = 270 - margin.top - margin.bottom;
+  width = 960 - margin.left - margin.right,
+  height = 470 - margin.top - margin.bottom;
 
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
@@ -97,6 +97,7 @@ d3.json("data.json", function(error, data){
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+    .style('margin', '0 auto')
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -117,12 +118,12 @@ d3.json("data.json", function(error, data){
     .attr("d", valuelineBMI(data.data.rows));
   svg.append("path")
     .attr("class", "line")
-    .style('stroke-dasharray', ('2', '8'))
+    .style('stroke-dasharray', ('2', '3'))
     .style('stroke', 'purple')
     .attr("d", valuelineBMR(data.data.rows));
   svg.append("path")
     .attr("class", "line")
-    .style('stroke-dasharray', ('2', '8'))
+    .style('stroke-dasharray', ('2', '8', '2'))
     .style('stroke', 'green')
     .attr("d", valuelineFat(data.data.rows));
   svg.append("path")
@@ -136,7 +137,7 @@ d3.json("data.json", function(error, data){
     .style('stroke', 'black')
     .attr("d", valuelineWeight(data.data.rows));
 
-console.log(valuelineWater(data.data.rows));
+  // console.log(valuelineWater(data.data.rows));
 
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yBMI(data.data.rows[data.data.rows.length-1].bmi) + ')')
@@ -211,6 +212,7 @@ console.log(valuelineWater(data.data.rows));
     .style('font-size', '14px')
     .text('Date');
 
+/*
   var p = d3.select("body").selectAll("p")
     .data(data.data.rows)
     .enter()
@@ -218,4 +220,5 @@ console.log(valuelineWater(data.data.rows));
     .text(function(measure) {
       return measure.createTime + ': ' + measure.bmi;
     });
+  */
 })
