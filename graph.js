@@ -26,7 +26,7 @@ d3.json("data/data.json", function(error, data){
   });
 
   // Set the dimensions of the canvas / graph
-  var margin = {top: 30, right: 50, bottom: 35, left: 50},
+  var margin = {top: 30, right: 75, bottom: 35, left: 50},
   width = 960 - margin.left - margin.right,
   height = 470 - margin.top - margin.bottom;
 
@@ -159,36 +159,44 @@ d3.json("data/data.json", function(error, data){
   console.log(yWater(data.data.rows[data.data.rows.length-1].water), 'water');
   console.log(yBMI(data.data.rows[data.data.rows.length-1].bmi), 'bmi');
 
+  var final = {
+    water: data.data.rows[data.data.rows.length-1].water,
+    bmi: data.data.rows[data.data.rows.length-1].bmi,
+    bmr: data.data.rows[data.data.rows.length-1].bmr,
+    fat: data.data.rows[data.data.rows.length-1].fat,
+    weight: data.data.rows[data.data.rows.length-1].weight
+  };
+
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yWater(data.data.rows[data.data.rows.length-1].water) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'blue')
-    .text('Water');
+    .text('Water: ' + final.water + '%');
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yBMI(data.data.rows[data.data.rows.length-1].bmi) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'red')
-    .text('BMI');
+    .text('BMI: ' + final.bmi);
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yBMR(data.data.rows[data.data.rows.length-1].bmr) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
-    .style('fill', 'purple')
-    .text('BMR');
+    .style('fill', 'grey')
+    .text('BMR: ' + final.bmr);
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yFat(data.data.rows[data.data.rows.length-1].fat) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'green')
-    .text('Fat');
+    .text('Fat: ' + final.fat + '%');
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yWeight(data.data.rows[data.data.rows.length-1].weight) + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
     .style('fill', 'black')
-    .text('Weight');
+    .text('Weight: ' + final.weight);
 
   // Add the X Axis
   svg.append("g")
