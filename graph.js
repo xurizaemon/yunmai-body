@@ -1,3 +1,11 @@
+// Muscle: 40-60
+// Fat: 11-22-27
+// BMI: 18.5-24-28-35
+// Age: 43 (vs DOB)
+// BMR: 1779 (?)
+// Water: 55-65
+// Bone %ge: 3.9%
+// Weight: 90-75
 d3.json("data/data.json", function(error, data){
   // console.log(data.data.rows);
 
@@ -27,7 +35,7 @@ d3.json("data/data.json", function(error, data){
   var yBMI = d3.scale.linear().range([height, 0]);
   var yBMR = d3.scale.linear().range([height, 0]);
   var yFat = d3.scale.linear().range([height, 0]);
-  var yWater = d3.scale.linear().range([height, 0]);
+  var yWater = d3.scale.linear().range([0, height]);
   var yWeight = d3.scale.linear().range([height, 0]);
 
   // Define the axes
@@ -103,12 +111,18 @@ d3.json("data/data.json", function(error, data){
 
   // Scale the range of the data
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
+
+  // console.log([0.95 * d3.min(data.data.rows, function(d) { return d.bmr; }), 1.05 * d3.max(data.data.rows, function(d) { return d.bmr; })], 'bmr');
+  // console.log([0.95 * d3.min(data.data.rows, function(d) { return d.fat; }), 1.05 * d3.max(data.data.rows, function(d) { return d.fat; })], 'fat');
+  // console.log([0.99 * d3.min(data.data.rows, function(d) { return d.water; }), 1.01 * d3.max(data.data.rows, function(d) { return d.water; })]);
+
   // This domain should show relevant range (eg 45-55% of BMI).
-  yBMI.domain([0.95 * d3.min(data.data.rows, function(d) { return d.bmi; }), 1.05 * d3.max(data.data.rows, function(d) { return d.bmi; })]);
+  yBMI.domain([18.5, 35]);
   yBMR.domain([0.95 * d3.min(data.data.rows, function(d) { return d.bmr; }), 1.05 * d3.max(data.data.rows, function(d) { return d.bmr; })]);
-  yFat.domain([0.95 * d3.min(data.data.rows, function(d) { return d.fat; }), 1.05 * d3.max(data.data.rows, function(d) { return d.fat; })]);
-  yWater.domain([0.99 * d3.min(data.data.rows, function(d) { return d.water; }), 1.01 * d3.max(data.data.rows, function(d) { return d.water; })]);
-  yWeight.domain([0.95 * d3.min(data.data.rows, function(d) { return d.weight; }), 1.05 * d3.max(data.data.rows, function(d) { return d.weight; })]);
+  yFat.domain([5, 34]);
+  yWater.domain([50, 70]);
+  yWeight.domain([80, 88]);
+
 
   // Add the valueline paths.
   svg.append("path")
@@ -119,26 +133,38 @@ d3.json("data/data.json", function(error, data){
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('2', '3'))
-    .style('stroke', 'purple')
+    .style('stroke', 'grey')
     .attr("d", valuelineBMR(data.data.rows));
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('2', '8', '2'))
-    .style('stroke', 'green')
+    .style('stroke', 'brown')
+    .style('stroke-width', 1)
     .attr("d", valuelineFat(data.data.rows));
   svg.append("path")
     .attr("class", "line")
     // .style('stroke')
-    .style('stroke', 'lightblue')
+    .style('stroke', 'blue')
+    .style('stroke-width', 1)
     .attr("d", valuelineWater(data.data.rows));
   svg.append("path")
     .attr("class", "line")
     // .style('stroke-dasharray', ('2', '8'))
     .style('stroke', 'black')
+    .style('stroke-width', 2)
     .attr("d", valuelineWeight(data.data.rows));
 
   // console.log(valuelineWater(data.data.rows));
 
+  console.log(yWater(data.data.rows[data.data.rows.length-1].water), 'water');
+  console.log(yBMI(data.data.rows[data.data.rows.length-1].bmi), 'bmi');
+
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + yWater(data.data.rows[data.data.rows.length-1].water) + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'blue')
+    .text('Water');
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yBMI(data.data.rows[data.data.rows.length-1].bmi) + ')')
     .attr('dy', '.35em')
@@ -157,12 +183,6 @@ d3.json("data/data.json", function(error, data){
     .attr('text-anchor', 'start')
     .style('fill', 'green')
     .text('Fat');
-  svg.append('text')
-    .attr('transform', 'translate(' + (width + 3) + ',' + yWater(data.data.rows[data.data.rows.length-1].water) + ')')
-    .attr('dy', '.35em')
-    .attr('text-anchor', 'start')
-    .style('fill', 'lightblue')
-    .text('Water');
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + yWeight(data.data.rows[data.data.rows.length-1].weight) + ')')
     .attr('dy', '.35em')
@@ -190,8 +210,13 @@ d3.json("data/data.json", function(error, data){
   svg.append("g")
     .attr("class", "y axis ghost")
     .attr("transform", "translate(30,0)")
-    .style('fill', 'red')
+    .style('fill', 'brown')
     .call(yAxisFat);
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(27,0)")
+    .style('fill', 'blue')
+    .call(yAxisWater);
   svg.append("g")
     .attr("class", "y axis")
     // .attr("transform", "translate(0,0)")
@@ -211,6 +236,22 @@ d3.json("data/data.json", function(error, data){
     .style('text-anchor', 'middle')
     .style('font-size', '14px')
     .text('Date');
+
+  svg.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", width)
+    .attr("height", height/4)
+    .style('fill', 'rgb(255, 235, 211)')
+    .style('opacity', 0.5);
+
+  svg.append("rect")
+    .attr("x", 0)
+    .attr("y", height/4*3)
+    .attr("width", width)
+    .attr("height", height/4)
+    .style('fill', 'rgb(211, 255, 211)')
+    .style('opacity', 0.5);
 
 /*
   var p = d3.select("body").selectAll("p")
