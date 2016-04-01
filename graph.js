@@ -6,7 +6,7 @@
 // Water: 55-65
 // Bone %ge: 3.9%
 // Weight: 90-75
-d3.json("data/data.json", function(error, data){
+d3.json("data/data.json", function(error, data) {
   // console.log(data.data.rows);
 
   // Data prep: ignore entries by timestamp.
@@ -109,6 +109,22 @@ d3.json("data/data.json", function(error, data){
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  svg.append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", width)
+    .attr("height", height/4)
+    .style('fill', 'rgb(255, 235, 211)')
+    .style('opacity', 0.5);
+
+  svg.append("rect")
+    .attr("x", 0)
+    .attr("y", height/4*3)
+    .attr("width", width)
+    .attr("height", height/4)
+    .style('fill', 'rgb(211, 255, 211)')
+    .style('opacity', 0.5);
+
   // Scale the range of the data
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
 
@@ -122,7 +138,6 @@ d3.json("data/data.json", function(error, data){
   yFat.domain([5, 34]);
   yWater.domain([50, 70]);
   yWeight.domain([80, 88]);
-
 
   // Add the valueline paths.
   svg.append("path")
@@ -207,24 +222,24 @@ d3.json("data/data.json", function(error, data){
   // Add the y Axes
   svg.append("g")
     .attr("class", "y axis ghost")
-    .attr("transform", "translate(10,0)")
+    .attr("transform", "translate(30,0)")
+    .style('fill', 'blue')
+    .call(yAxisWater);
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(20,0)")
     .style('fill', 'green')
     .call(yAxisBMI);
   svg.append("g")
     .attr("class", "y axis ghost")
-    .attr("transform", "translate(50,0)")
-    .style('fill', 'purple')
-    .call(yAxisBMR);
-  svg.append("g")
-    .attr("class", "y axis ghost")
-    .attr("transform", "translate(30,0)")
+    .attr("transform", "translate(40,0)")
     .style('fill', 'brown')
     .call(yAxisFat);
   svg.append("g")
     .attr("class", "y axis ghost")
-    .attr("transform", "translate(27,0)")
-    .style('fill', 'blue')
-    .call(yAxisWater);
+    .attr("transform", "translate(60,0)")
+    .style('fill', 'purple')
+    .call(yAxisBMR);
   svg.append("g")
     .attr("class", "y axis")
     // .attr("transform", "translate(0,0)")
@@ -244,22 +259,6 @@ d3.json("data/data.json", function(error, data){
     .style('text-anchor', 'middle')
     .style('font-size', '14px')
     .text('Date');
-
-  svg.append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", width)
-    .attr("height", height/4)
-    .style('fill', 'rgb(255, 235, 211)')
-    .style('opacity', 0.5);
-
-  svg.append("rect")
-    .attr("x", 0)
-    .attr("y", height/4*3)
-    .attr("width", width)
-    .attr("height", height/4)
-    .style('fill', 'rgb(211, 255, 211)')
-    .style('opacity', 0.5);
 
 /*
   var p = d3.select("body").selectAll("p")
