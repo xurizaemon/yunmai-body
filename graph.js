@@ -1,3 +1,11 @@
+/**
+ * @TODO:
+ *  - make y scale go to current date
+ *  - load in data dynamically (switch user)
+ *  - average weight by day, week
+ *  - show table of data below
+ */
+
 // Muscle: 40-60
 // Fat: 11-22-27
 // BMI: 18.5-24-28-35
@@ -94,6 +102,9 @@ d3.json("data/data.json", function(error, data) {
 
   // Scale the range of the data
   x.domain(d3.extent(data.data.rows, function(d) { return d.date; }));
+  x.domain([x.domain()[0], new Date()]);
+  // console.log(x.domain());
+  // console.log(x.domain());
 
   // Define the axes
   var xAxis = d3.svg.axis().scale(x)
@@ -249,7 +260,7 @@ d3.json("data/data.json", function(error, data) {
     prev = bodyStats.final[finals[i]].value;
   });
 
-  console.log(finals);
+  // console.log(finals);
 
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.water.value + ')')
@@ -317,7 +328,7 @@ d3.json("data/data.json", function(error, data) {
 
   svg.append('text')
     .attr('x', (width / 2))
-    .attr('y', (margin.top / 2))
+    .attr('y', (margin.top / 2) - 20)
     .attr('text-anchor', 'middle')
     .style('font-size', '16px')
     .text('Body Stats');
