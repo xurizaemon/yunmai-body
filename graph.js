@@ -1,9 +1,9 @@
 /**
  * @TODO:
- *  - make y scale go to current date
  *  - load in data dynamically (switch user)
  *  - average weight by day, week
  *  - show table of data below
+ *  - stack bone / muscle / fat, sum to 100%
  */
 
 // Muscle: 40-60
@@ -18,7 +18,7 @@ var bodyStats = {
   graph: {
     margin: {
       top: 30,
-      right: 75,
+      right: 100,
       bottom: 35,
       left: 50
     },
@@ -75,20 +75,36 @@ d3.json("data/data.json", function(error, data) {
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  svg.append("svg:line")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", height/4)
+    .attr("y2", height/4)
+    .style("stroke", "rgb(189, 189, 189)");
+
   svg.append("rect")
+    .attr("class", "quartile")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", width)
     .attr("height", height/4)
-    .style('fill', 'rgb(255, 235, 211)')
+    .style('fill', 'rgba(255, 235, 211, 0.5)')
     .style('opacity', 0.5);
 
+  svg.append("svg:line")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", height/4*3)
+    .attr("y2", height/4*3)
+    .style("stroke", "rgb(189, 189, 189)");
+
   svg.append("rect")
+    .attr("class", "quartile")
     .attr("x", 0)
     .attr("y", height/4*3)
     .attr("width", width)
     .attr("height", height/4)
-    .style('fill', 'rgb(211, 255, 211)')
+    .style('fill', 'rgba(211, 255, 211, 0.5)')
     .style('opacity', 0.5);
 
   // Set the ranges
@@ -121,12 +137,12 @@ d3.json("data/data.json", function(error, data) {
   var yAxisFat = d3.svg.axis().scale(yFat)
     .orient("right")
     .ticks(5);
-    var yAxisVisFat = d3.svg.axis().scale(yVisFat)
-      .orient("right")
-      .ticks(5);
-      var yAxisMuscle = d3.svg.axis().scale(yMuscle)
-        .orient("right")
-        .ticks(5);
+  var yAxisVisFat = d3.svg.axis().scale(yVisFat)
+    .orient("right")
+    .ticks(5);
+  var yAxisMuscle = d3.svg.axis().scale(yMuscle)
+    .orient("right")
+    .ticks(5);
   var yAxisWater = d3.svg.axis().scale(yWater)
     .orient("left")
     .ticks(5);
@@ -175,12 +191,21 @@ d3.json("data/data.json", function(error, data) {
     .y(function(d) {
       return yVisFat(d.visFat);
     });
-  var valuelineWater = d3.svg.line()
+  var valuelineWater = d3.svg.area()
     .interpolate('basis')
     .x(function(d) {
       return x(d.date);
     })
     .y(function(d) {
+      return yWater(d.water);
+    });
+  var valueareaWater = d3.svg.area()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y0(height)
+    .y1(function(d) {
       return yWater(d.water);
     });
   var valuelineWeight = d3.svg.line()
@@ -218,23 +243,27 @@ d3.json("data/data.json", function(error, data) {
     .style('stroke-dasharray', ('2', '3'))
     .style('stroke', 'grey')
     .attr("d", valuelineBMR(data.data.rows));
-    svg.append("path")
-      .attr("class", "line")
-      .style('stroke-dasharray', ('2', '8', '2'))
-      .style('stroke', 'brown')
-      .style('stroke-width', 1)
-      .attr("d", valuelineFat(data.data.rows));
-      svg.append("path")
-        .attr("class", "line")
-        .style('stroke-dasharray', ('20', '10', '20'))
-        .style('stroke', 'pink')
-        .style('stroke-width', 1)
-        .attr("d", valuelineMuscle(data.data.rows));
   svg.append("path")
     .attr("class", "line")
-    // .style('stroke')
-    .style('stroke', 'blue')
+    .style('stroke-dasharray', ('2', '8', '2'))
+    .style('stroke', 'brown')
     .style('stroke-width', 1)
+    .attr("d", valuelineFat(data.data.rows));
+  svg.append("path")
+    .attr("class", "line")
+    .style('stroke-dasharray', ('20', '10', '20'))
+    .style('stroke', 'pink')
+    .style('stroke-width', 1)
+    .attr("d", valuelineMuscle(data.data.rows));
+  svg.append("path")
+    // .style('stroke')
+    .classed('water', true)
+    .attr("d", valueareaWater(data.data.rows));
+  svg.append("path")
+    .attr("class", "line")
+    .style('stroke', 'blue')
+    .style('stroke-width', 0.5)
+    .classed('water', true)
     .attr("d", valuelineWater(data.data.rows));
   svg.append("path")
     .attr("class", "line")
@@ -304,18 +333,18 @@ d3.json("data/data.json", function(error, data) {
     .attr('text-anchor', 'start')
     .style('fill', 'grey')
     .text(bodyStats.final.bmr.label);
-    svg.append('text')
-      .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.fat.value + ')')
-      .attr('dy', '.35em')
-      .attr('text-anchor', 'start')
-      .style('fill', 'brown')
-      .text(bodyStats.final.fat.label + '%');
-      svg.append('text')
-        .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.muscle.value + ')')
-        .attr('dy', '.35em')
-        .attr('text-anchor', 'start')
-        .style('fill', 'pink')
-        .text(bodyStats.final.muscle.label + '%');
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.fat.value + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'brown')
+    .text(bodyStats.final.fat.label);
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.muscle.value + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'pink')
+    .text(bodyStats.final.muscle.label);
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.weight.value + ')')
     .attr('dy', '.35em')

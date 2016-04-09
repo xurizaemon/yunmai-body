@@ -23,3 +23,12 @@ path {
   stroke-width: 1;
   shape-rendering: crispEdges;
 }
+
+.water {
+  fill: rgba(211, 211, 255, 0.5);
+  stroke-width: 0;
+}
+
+.quartile {
+
+}
