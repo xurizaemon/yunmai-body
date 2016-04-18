@@ -2,7 +2,6 @@
  * @TODO:
  *  - load in data dynamically (switch user)
  *  - average weight by day, week
- *  - show table of data below
  *  - stack bone / muscle / fat, sum to 100%
  */
 
@@ -74,6 +73,49 @@ d3.json("data/data.json", function(error, data) {
     .style('margin', '0 auto')
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var table = d3.select("body").append("table");
+  var thead = table.append("thead"),
+    tbody = table.append("tbody");
+
+  var columns = [
+    // 'id',
+    'createTime',
+    // 'timeStamp',
+    'weight',
+    'bone',
+    'muscle',
+    'fat',
+    'bmi',
+    'kcal',
+    'visFat',
+    'water',
+    'resistance'
+  ];
+
+  // append the header row
+  thead.append("tr")
+    .selectAll("th")
+    .data(columns)
+    .enter()
+    .append("th")
+    .text(function(column) { return column; });
+  // create a row for each object in the data
+  var rows = tbody.selectAll("tr")
+    .data(data.data.rows)
+    .enter()
+    .append("tr");
+
+  // create a cell in each row for each column
+  var cells = rows.selectAll("td")
+    .data(function(row) {
+      return columns.map(function(column) {
+        return {column: column, value: row[column]};
+      });
+    })
+    .enter()
+    .append("td")
+    .html(function(d) { return d.value; });
 
   svg.append("svg:line")
     .attr("x1", 0)

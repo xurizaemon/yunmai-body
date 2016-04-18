@@ -25,10 +25,36 @@ path {
 }
 
 .water {
-  fill: rgba(211, 211, 255, 0.5);
+  fill: rgba(211, 211, 255, 0.25);
+  stroke-width: 0;
+}
+
+.bone {
+  fill: rgba(125, 255, 125, 0.25);
+  stroke-width: 0;
+}
+
+.muscle {
+  fill: rgba(255, 125, 125, 0.25);
+  stroke-width: 1;
+}
+
+.fat {
+  fill: rgba(125, 125, 255, 0.25);
   stroke-width: 0;
 }
 
 .quartile {
 
+}
+
+table {
+  margin-top: 20px;
+  font-size: 12px;
+  margin-left: 38px;
+}
+
+td {
+  font-family: Courier;
+  padding: 0 1em;
 }
