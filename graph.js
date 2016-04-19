@@ -26,6 +26,13 @@ var bodyStats = {
     height: 470
   },
 
+  colors: {
+    bone: 'ivory',
+    muscle: '#993333',
+    fat: 'brown',
+    water: 'rgba(211, 211, 255, 0.5)'
+  },
+
   ignoreTimestamps: [
     1457869810
   ],
@@ -124,6 +131,7 @@ d3.json("data/data.json", function(error, data) {
     .attr("y2", height/4)
     .style("stroke", "rgb(189, 189, 189)");
 
+/*
   svg.append("rect")
     .attr("class", "quartile")
     .attr("x", 0)
@@ -132,6 +140,7 @@ d3.json("data/data.json", function(error, data) {
     .attr("height", height/4)
     .style('fill', 'rgba(255, 235, 211, 0.5)')
     .style('opacity', 0.5);
+*/
 
   svg.append("svg:line")
     .attr("x1", 0)
@@ -139,7 +148,7 @@ d3.json("data/data.json", function(error, data) {
     .attr("y1", height/4*3)
     .attr("y2", height/4*3)
     .style("stroke", "rgb(189, 189, 189)");
-
+/*
   svg.append("rect")
     .attr("class", "quartile")
     .attr("x", 0)
@@ -148,6 +157,7 @@ d3.json("data/data.json", function(error, data) {
     .attr("height", height/4)
     .style('fill', 'rgba(211, 255, 211, 0.5)')
     .style('opacity', 0.5);
+*/
 
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
