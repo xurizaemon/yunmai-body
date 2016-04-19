@@ -164,6 +164,8 @@ d3.json("data/data.json", function(error, data) {
   // Set the ranges
   var x = d3.time.scale().range([0, width]);
   var y = d3.scale.linear().range([height, 0]);
+  var yBone = d3.scale.linear().range([height, 0]);
+  var yMakeup = d3.scale.linear().range([height, 0]);
   var yBMI = d3.scale.linear().range([height, 0]);
   var yBMR = d3.scale.linear().range([height, 0]);
   var yFat = d3.scale.linear().range([height, 0]);
@@ -188,13 +190,16 @@ d3.json("data/data.json", function(error, data) {
   var yAxisBMR = d3.svg.axis().scale(yBMR)
     .orient("right")
     .ticks(2);
-  var yAxisFat = d3.svg.axis().scale(yFat)
+  var yAxisBone = d3.svg.axis().scale(yMakeup)
+    .orient("right")
+    .ticks(5);
+  var yAxisMuscle = d3.svg.axis().scale(yMakeup)
+    .orient("right")
+    .ticks(5);
+  var yAxisFat = d3.svg.axis().scale(yMakeup)
     .orient("right")
     .ticks(5);
   var yAxisVisFat = d3.svg.axis().scale(yVisFat)
-    .orient("right")
-    .ticks(5);
-  var yAxisMuscle = d3.svg.axis().scale(yMuscle)
     .orient("right")
     .ticks(5);
   var yAxisWater = d3.svg.axis().scale(yWater)
@@ -221,13 +226,15 @@ d3.json("data/data.json", function(error, data) {
     .y(function(d) {
       return yBMR(d.bmr);
     });
-  var valuelineFat = d3.svg.line()
+
+  var valuelineBone = d3.svg.line()
     .interpolate('basis')
     .x(function(d) {
       return x(d.date);
     })
     .y(function(d) {
-      return yFat(d.fat);
+      console.log(yMakeup(d.bone), 'bone');
+      return yMakeup(d.bone);
     });
   var valuelineMuscle = d3.svg.line()
     .interpolate('basis')
@@ -235,8 +242,52 @@ d3.json("data/data.json", function(error, data) {
       return x(d.date);
     })
     .y(function(d) {
-      return yMuscle(d.muscle);
+      console.log(yMakeup(d.muscle + d.bone), 'muscle + bone');
+      return yMakeup(d.muscle + d.bone);
     });
+  var valuelineFat = d3.svg.line()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y(function(d) {
+      return yMakeup(d.fat + d.muscle + d.bone);
+    });
+
+  // These three get stacked together; in theory they
+  // should add up to 100%.
+  var valueareaBone = d3.svg.area()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y0(height)
+    .y1(function(d) {
+      return yMakeup(d.bone);
+    });
+  var valueareaMuscle = d3.svg.area()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y0(function(d) {
+      return yMakeup(d.bone);
+    })
+    .y1(function(d) {
+      return yMakeup(d.muscle + d.bone);
+    });
+  var valueareaFat = d3.svg.area()
+    .interpolate('basis')
+    .x(function(d) {
+      return x(d.date);
+    })
+    .y0(function(d) {
+      return yMakeup(d.muscle + d.bone);
+    })
+    .y1(function(d) {
+      return yMakeup(d.fat + d.muscle + d.bone);
+    });
+
   var valuelineVisFat = d3.svg.line()
     .interpolate('basis')
     .x(function(d) {
@@ -276,11 +327,13 @@ d3.json("data/data.json", function(error, data) {
   // console.log([0.99 * d3.min(data.data.rows, function(d) { return d.water; }), 1.01 * d3.max(data.data.rows, function(d) { return d.water; })]);
 
   // This domain should show relevant range (eg 45-55% of BMI).
+  yMakeup.domain([0, 100]);
   yBMI.domain([18.5, 35]);
   yBMR.domain([0.95 * d3.min(data.data.rows, function(d) { return d.bmr; }), 1.05 * d3.max(data.data.rows, function(d) { return d.bmr; })]);
-  yFat.domain([5, 34]);
+  yFat.domain([0, 100]);
+  yBone.domain([0, 100]);
   yMuscle.domain([0, 100]);
-  yWater.domain([50, 70]);
+  yWater.domain([50, 60]);
   yWeight.domain([80, 88]);
 
   // console.log(data.data.rows, 'data');
@@ -297,12 +350,15 @@ d3.json("data/data.json", function(error, data) {
     .style('stroke-dasharray', ('2', '3'))
     .style('stroke', 'grey')
     .attr("d", valuelineBMR(data.data.rows));
+
+  // Bone, muscle, fat.
+/*
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('2', '8', '2'))
-    .style('stroke', 'brown')
+    .style('stroke', 'black')
     .style('stroke-width', 1)
-    .attr("d", valuelineFat(data.data.rows));
+    .attr("d", valuelineBone(data.data.rows));
   svg.append("path")
     .attr("class", "line")
     .style('stroke-dasharray', ('20', '10', '20'))
@@ -310,15 +366,38 @@ d3.json("data/data.json", function(error, data) {
     .style('stroke-width', 1)
     .attr("d", valuelineMuscle(data.data.rows));
   svg.append("path")
+    .attr("class", "line")
+    .style('stroke-dasharray', ('2', '8', '2'))
+    .style('stroke', 'brown')
+    .style('stroke-width', 1)
+    .attr("d", valuelineFat(data.data.rows));
+*/
+
+  svg.append("path")
     // .style('stroke')
-    .classed('water', true)
-    .attr("d", valueareaWater(data.data.rows));
+    .classed('bone', true)
+    .attr("d", valueareaBone(data.data.rows));
+  svg.append("path")
+    // .style('stroke')
+    .classed('muscle', true)
+    .attr("d", valueareaMuscle(data.data.rows));
+  svg.append("path")
+    // .style('stroke')
+    .classed('fat', true)
+    .attr("d", valueareaFat(data.data.rows));
+
+  // Water.
   svg.append("path")
     .attr("class", "line")
     .style('stroke', 'blue')
     .style('stroke-width', 0.5)
     .classed('water', true)
     .attr("d", valuelineWater(data.data.rows));
+  svg.append("path")
+    // .style('stroke')
+    .classed('water', true)
+    .attr("d", valueareaWater(data.data.rows));
+
   svg.append("path")
     .attr("class", "line")
     // .style('stroke-dasharray', ('2', '8'))
@@ -331,6 +410,18 @@ d3.json("data/data.json", function(error, data) {
       label: 'Water: ' + data.data.rows[data.data.rows.length-1].water + '%',
       value: yWater(data.data.rows[data.data.rows.length-1].water),
     },
+    bone: {
+      label: 'Bone: ' + data.data.rows[data.data.rows.length-1].bone.toFixed(1),
+      value: yMakeup(data.data.rows[data.data.rows.length-1].bone)
+    },
+    fat: {
+      label: 'Fat: ' + data.data.rows[data.data.rows.length-1].fat.toFixed(1) + '%',
+      value: yMakeup(data.data.rows[data.data.rows.length-1].muscle + data.data.rows[data.data.rows.length-1].bone + data.data.rows[data.data.rows.length-1].fat)
+    },
+    muscle: {
+      label: 'Muscle: ' + data.data.rows[data.data.rows.length-1].muscle.toFixed(1) + '%',
+      value: yMakeup(data.data.rows[data.data.rows.length-1].muscle + data.data.rows[data.data.rows.length-1].bone)
+    },
     bmi: {
       label: 'BMI: ' + data.data.rows[data.data.rows.length-1].bmi.toFixed(1),
       value: yBMI(data.data.rows[data.data.rows.length-1].bmi)
@@ -338,14 +429,6 @@ d3.json("data/data.json", function(error, data) {
     bmr: {
       label: 'BMR: ' + data.data.rows[data.data.rows.length-1].bmr.toFixed(1),
       value: yBMR(data.data.rows[data.data.rows.length-1].bmr)
-    },
-    fat: {
-      label: 'Fat: ' + data.data.rows[data.data.rows.length-1].fat.toFixed(1) + '%',
-      value: yFat(data.data.rows[data.data.rows.length-1].fat)
-    },
-    muscle: {
-      label: 'Muscle: ' + data.data.rows[data.data.rows.length-1].muscle.toFixed(1) + '%',
-      value: yMuscle(data.data.rows[data.data.rows.length-1].muscle)
     },
     weight: {
       label: 'Weight: ' + data.data.rows[data.data.rows.length-1].weight.toFixed(1),
@@ -387,18 +470,26 @@ d3.json("data/data.json", function(error, data) {
     .attr('text-anchor', 'start')
     .style('fill', 'grey')
     .text(bodyStats.final.bmr.label);
+
   svg.append('text')
-    .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.fat.value + ')')
+    .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.bone.value + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
-    .style('fill', 'brown')
-    .text(bodyStats.final.fat.label);
+    .style('fill', 'grey')
+    .text(bodyStats.final.bone.label);
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.muscle.value + ')')
     .attr('dy', '.35em')
     .attr('text-anchor', 'start')
-    .style('fill', 'pink')
+    .style('fill', 'grey')
     .text(bodyStats.final.muscle.label);
+  svg.append('text')
+    .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.fat.value + ')')
+    .attr('dy', '.35em')
+    .attr('text-anchor', 'start')
+    .style('fill', 'grey')
+    .text(bodyStats.final.fat.label);
+
   svg.append('text')
     .attr('transform', 'translate(' + (width + 3) + ',' + bodyStats.final.weight.value + ')')
     .attr('dy', '.35em')
@@ -423,16 +514,16 @@ d3.json("data/data.json", function(error, data) {
     .attr("transform", "translate(20,0)")
     .style('fill', 'green')
     .call(yAxisBMI);
-    svg.append("g")
-      .attr("class", "y axis ghost")
-      .attr("transform", "translate(40,0)")
-      .style('fill', 'brown')
-      .call(yAxisFat);
-      svg.append("g")
-        .attr("class", "y axis ghost")
-        .attr("transform", "translate(40,0)")
-        .style('fill', 'pink')
-        .call(yAxisMuscle);
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(40,0)")
+    .style('fill', 'brown')
+    .call(yAxisFat);
+  svg.append("g")
+    .attr("class", "y axis ghost")
+    .attr("transform", "translate(40,0)")
+    .style('fill', 'pink')
+    .call(yAxisMuscle);
   svg.append("g")
     .attr("class", "y axis ghost")
     .attr("transform", "translate(60,0)")
