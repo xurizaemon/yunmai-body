@@ -34,7 +34,9 @@ var bodyStats = {
   },
 
   ignoreTimestamps: [
-    1457869810
+    1457869810,
+    1460379447,
+    1460379467
   ],
 
   filterData: function(d) {
