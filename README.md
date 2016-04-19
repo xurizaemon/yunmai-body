@@ -15,6 +15,7 @@ look at outlandish spikes in my graph, or extract the data & roll my own graphs.
 
 ## TODO
 
+* Write up a blog post about how this works.
 * Load in data dynamically (switch user)
 * Average weight by day, week
 * Switch between measurement / day / week etc
