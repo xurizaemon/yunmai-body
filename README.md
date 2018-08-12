@@ -8,6 +8,10 @@ This started because one of my sons measured himself while my data profile was
 selected, and the delete function in the app doesn't work. So I either had to
 look at outlandish spikes in my graph, or extract the data & roll my own graphs.
 
+## Q: I want to do the same!
+
+You should check out [conoro/yunmai-data-extract](https://github.com/conoro/yunmai-data-extract) instead 😁
+
 ## Questions
 
 * What is "Plump"? Currently I'm "+0.4% Plump" in the Android app. Negative values of plump occur.
